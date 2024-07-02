@@ -11,7 +11,6 @@ import ListPage from './routes/listPage/ListPage.jsx'
 import Layout from './routes/layout/Layout.jsx'
 import ProfilePage from './routes/profilePage/ProfilePage.jsx'
 import Register from './routes/register/Register.jsx'
-
 function App() {
 
   const router = createBrowserRouter([
