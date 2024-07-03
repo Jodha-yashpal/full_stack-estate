@@ -100,6 +100,8 @@ const login = async (req, res) => {
 
         const age = 1000*60*60*24*7
 
+        const {password: userPassword, ...userInfo} = user
+
         res.cookie("token", token, {
             httpOnly: true,
             // secure: true
@@ -107,7 +109,7 @@ const login = async (req, res) => {
         })
             .status(200)
             .json(
-                new ApiResponse(200, null, "login Successfull")
+                new ApiResponse(200, userInfo, "login Successfull")
             )
 
     } catch (error) {
