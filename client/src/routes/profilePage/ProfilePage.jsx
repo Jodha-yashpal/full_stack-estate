@@ -1,23 +1,25 @@
-import React from "react";
+import React, { useContext } from "react";
 import "./profilePage.scss";
 import List from "../../components/list/List";
 import Chat from "../../components/chat/Chat";
- import apiRequest from "../../lib/apiRequest.js"
+import apiRequest from "../../lib/apiRequest.js";
 import { useNavigate } from "react-router-dom";
+import { AuthContext } from "../../context/AuthContext.jsx";
 
 function ProfilePage() {
+  const { currentUser, updateUser } = useContext(AuthContext);
 
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
   const handleLogout = async (e) => {
     try {
-      const res = apiRequest.post("/auth/logout")
-      localStorage.removeItem("user")
-      navigate('/')
+      await apiRequest.post("/auth/logout");
+      updateUser(null);
+      navigate("/");
     } catch (err) {
-      console.log(err)
+      console.log(err);
     }
-  }
+  };
 
   return (
     <div className="profilePage">
@@ -30,16 +32,13 @@ function ProfilePage() {
           <div className="info">
             <span>
               Avatar:
-              <img
-                src="https://images.pexels.com/photos/24375005/pexels-photo-24375005/free-photo-of-young-brunette-posing-among-tropical-green-leaves.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"
-                alt=""
-              />
+              <img src={currentUser.data.avatar || "/noavatar.jpg"} alt="" />
             </span>
             <span>
-              Username: <b>Jane Doe</b>
+              Username: <b>{currentUser.data.username}</b>
             </span>
             <span>
-              email: <b>jane@gmail.com</b>
+              email: <b>{currentUser.data.email}</b>
             </span>
             <button onClick={handleLogout}>Logout</button>
           </div>
