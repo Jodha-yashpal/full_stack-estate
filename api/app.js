@@ -19,8 +19,10 @@ app.use(cookieParser());
 
 
 import authRoute from './routes/auth.route.js';
+import userRoute from './routes/user.route.js';
 
 app.use("/api/auth", authRoute);
+app.use("/api/user", userRoute);
 
 app.listen(3000, () => {
     console.log("server is running");
