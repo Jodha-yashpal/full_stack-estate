@@ -12,6 +12,7 @@ import {Layout, RequireAuth} from './routes/layout/Layout.jsx'
 import ProfilePage from './routes/profilePage/ProfilePage.jsx'
 import Register from './routes/register/Register.jsx'
 import ProfileUpdatePage from './routes/profileUpdatePage/ProfileUpdatePage.jsx'
+import NewPostPage from './routes/newPostPage/NewPostPage.jsx'
 function App() {
 
   const router = createBrowserRouter([
@@ -54,6 +55,11 @@ function App() {
         {
           path:"/profile/update",
           element: <ProfileUpdatePage/>
+        },
+
+        {
+          path:"/add",
+          element: <NewPostPage/>
         },
       ],
     },
