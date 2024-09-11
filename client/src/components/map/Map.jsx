@@ -4,6 +4,7 @@ import Pin from '../pin/Pin';
 import './map.scss'
 import 'leaflet/dist/leaflet.css';
 
+
 function Map({items}) {
     const position = [items[0].latitude, items[0].longitude]
     const Citycenter = [26.903245, 75.789572]
