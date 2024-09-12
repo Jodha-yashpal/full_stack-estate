@@ -174,10 +174,38 @@ const savePost = async (req, res) => {
     }
 }
 
+const profilePosts = async (req, res) => {
+    const tokenUserId = req.userId;
+    try {
+        const userPosts = await prisma.post.findMany({
+            where:{userId: tokenUserId}
+        });
+        const saved = await prisma.savedPost.findMany({
+            where:{userId: tokenUserId},
+            include:{
+                post:true
+            }
+        });
+        const savedPosts = saved.map((item) => item.post)
+
+        return res
+            .status(200)
+            .json(
+                new ApiResponse(200, {userPosts, savedPosts}, "profile posts fetched successfully!")
+            )
+        
+    } catch (err) {
+        console.log(err)
+        
+        throw new ApiError(500, "Failed to get profile posts!");
+    }
+}
+
 export {
     getUsers,
     getUser,
     updateUser,
     deleteUser,
-    savePost
+    savePost,
+    profilePosts
 }

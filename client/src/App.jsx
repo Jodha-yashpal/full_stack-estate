@@ -13,7 +13,7 @@ import ProfilePage from './routes/profilePage/ProfilePage.jsx'
 import Register from './routes/register/Register.jsx'
 import ProfileUpdatePage from './routes/profileUpdatePage/ProfileUpdatePage.jsx'
 import NewPostPage from './routes/newPostPage/NewPostPage.jsx'
-import { listPageLoader, singlePageLoader } from './lib/loaders.js'
+import { listPageLoader, profilePageLoader, singlePageLoader } from './lib/loaders.js'
 function App() {
 
   const router = createBrowserRouter([
@@ -52,7 +52,8 @@ function App() {
       children: [
         {
           path:"/profile",
-          element: <ProfilePage/>
+          element: <ProfilePage/>,
+          loader: profilePageLoader
         },
 
         {

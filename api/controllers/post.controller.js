@@ -65,8 +65,6 @@ const getPost = async (req, res) => {
         const token = req.cookies?.token;
         let isSaved = false;
 
-        console.log(process.env.ACCESS_TOKEN_KEY)
-
         if (token) {
             try {
                 const payload = await verifyToken(token, process.env.ACCESS_TOKEN_KEY)
