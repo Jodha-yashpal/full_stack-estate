@@ -1,12 +1,19 @@
-import {ApiError} from '../lib/ApiError.js'
-import {ApiResponse} from '../lib/ApiResponse.js'
+import { ApiError } from '../lib/ApiError.js'
+import { ApiResponse } from '../lib/ApiResponse.js'
 import prisma from '../lib/prisma.js'
+import jwt from 'jsonwebtoken'
+import {promisify} from 'util'
+import dotenv from 'dotenv'
+
+dotenv.config()
+
+const verifyToken = promisify(jwt.verify)
 
 const getPosts = async (req, res) => {
-    try{
+    try {
         const query = req.query;
         const posts = await prisma.post.findMany({
-            where:{
+            where: {
                 city: query.city || undefined,
                 type: query.type || undefined,
                 property: query.property || undefined,
@@ -15,7 +22,6 @@ const getPosts = async (req, res) => {
                     gte: parseInt(query.minPrice) || 0,
                     lte: parseInt(query.maxPrice) || 10000000,
                 }
-
             }
         })
 
@@ -24,7 +30,7 @@ const getPosts = async (req, res) => {
             .json(
                 new ApiResponse(200, posts, "all posts fetched successfully!")
             )
-    }catch(err){
+    } catch (err) {
         console.log(err)
 
         if (err instanceof ApiError) {
@@ -40,15 +46,15 @@ const getPosts = async (req, res) => {
 }
 const getPost = async (req, res) => {
     const id = req.params.id;
-    
-    try{
+
+    try {
 
         const post = await prisma.post.findUnique({
-            where:{id},
-            include:{
+            where: { id },
+            include: {
                 postDetail: true,
                 user: {
-                    select:{
+                    select: {
                         username: true,
                         avatar: true
                     }
@@ -56,12 +62,37 @@ const getPost = async (req, res) => {
             }
         })
 
+        const token = req.cookies?.token;
+        let isSaved = false;
+
+        console.log(process.env.ACCESS_TOKEN_KEY)
+
+        if (token) {
+            try {
+                const payload = await verifyToken(token, process.env.ACCESS_TOKEN_KEY)
+                const saved = await prisma.savedPost.findUnique({
+                    where:{
+                        userId_postId: {
+                            postId: id,
+                            userId: payload.id
+                        },
+                    },
+                });
+
+                isSaved = saved? true: false;
+            } catch (error) {
+                console.log("Error verifying token or querying savedPost:: ",error)
+                throw new ApiError(403, "Token verification failed or unable to query savedPost!")
+                
+            }
+        }
+
         return res
             .status(200)
             .json(
-                new ApiResponse(200, post, "post fetched successfully!")
+                new ApiResponse(200, { ...post, isSaved }, "post fetched successfully!")
             )
-    }catch(err){
+    } catch (err) {
         console.log(err)
 
         if (err instanceof ApiError) {
@@ -79,13 +110,13 @@ const addPost = async (req, res) => {
     const body = req.body;
     const tokenUserId = req.userId;
 
-    try{
+    try {
 
         const newPost = await prisma.post.create({
-            data:{
+            data: {
                 ...body.postData,
                 userId: tokenUserId,
-                postDetail:{
+                postDetail: {
                     create: body.postDetail
                 }
             },
@@ -96,7 +127,7 @@ const addPost = async (req, res) => {
             .json(
                 new ApiResponse(200, newPost, "new post added successfully!")
             )
-    }catch(err){
+    } catch (err) {
         console.log(err)
 
         if (err instanceof ApiError) {
@@ -111,14 +142,14 @@ const addPost = async (req, res) => {
     }
 }
 const updatePost = async (req, res) => {
-    try{
+    try {
 
         return res
             .status(200)
             .json(
                 new ApiResponse(200)
             )
-    }catch(err){
+    } catch (err) {
         console.log(err)
 
         if (err instanceof ApiError) {
@@ -136,18 +167,18 @@ const deletePost = async (req, res) => {
     const id = req.params.id;
     const tokenUserId = req.userId
 
-    try{
+    try {
 
         const post = await prisma.post.findUnique({
-            where:{id}
+            where: { id }
         });
 
-        if(post.userId !== tokenUserId){
+        if (post.userId !== tokenUserId) {
             throw new ApiError(403, "Not Authorized!")
         }
 
-        await prisma.post.delete({ 
-            where:{id},
+        await prisma.post.delete({
+            where: { id },
         });
 
         return res
@@ -155,7 +186,7 @@ const deletePost = async (req, res) => {
             .json(
                 new ApiResponse(200, null, "post deleted successfully!")
             )
-    }catch(err){
+    } catch (err) {
         console.log(err)
 
         if (err instanceof ApiError) {

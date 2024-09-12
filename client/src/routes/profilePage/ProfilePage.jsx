@@ -54,7 +54,7 @@ function ProfilePage() {
           <div className="title">
             <h1>Saved List</h1>
           </div>
-          <List />
+          {/* <List /> */}
         </div>
       </div>
 

@@ -27,7 +27,7 @@ function Filter() {
   return (
     <div className="filter">
       <h1>
-        Search results for <bc>{searchParams.get("city")}</bc>
+        Search results for <p>{searchParams.get("city")}</p>
       </h1>
       <div className="top">
         <div className="item">

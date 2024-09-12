@@ -118,9 +118,66 @@ const deleteUser = async (req, res) => {
     }
 }
 
+const savePost = async (req, res) => {
+
+    const postId = req.body.postId;
+    const tokenUserId = req.userId;
+
+    try {
+        const savedPost = await prisma.savedPost.findUnique({
+            where:{
+                userId_postId:{
+                    userId: tokenUserId,
+                    postId: postId
+                }
+            }
+        })
+        if(savedPost) {
+            await prisma.savedPost.delete({
+                where:{
+                    id: savedPost.id
+                }
+            })
+            return res
+            .status(200)
+            .json(
+                new ApiResponse(200, null, "post removed from saved list successfully!")
+            )
+        }
+
+        await prisma.savedPost.create({
+            data:{
+                userId: tokenUserId,
+                postId: postId
+            }
+        })
+
+        return res
+            .status(200)
+            .json(
+                new ApiResponse(200, null, "post saved successfully!")
+            )
+        
+
+    } catch (err) {
+        console.log(err)
+
+        if (err instanceof ApiError) {
+            return res
+                .status(err.statusCode)
+                .json(
+                    new ApiResponse(err.statusCode, null, err.message)
+                )
+        }
+
+        throw new ApiError(500, "Failed to save post!");
+    }
+}
+
 export {
     getUsers,
     getUser,
     updateUser,
-    deleteUser
+    deleteUser,
+    savePost
 }
